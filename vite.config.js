@@ -7,5 +7,5 @@ export default defineConfig({
     open: true,
     port: 5173,
   },
-  base: '/spot-that-pokemon/',
+  base: '/spot-that-pokemon/'
 })
