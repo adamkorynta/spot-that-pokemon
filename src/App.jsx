@@ -1,13 +1,28 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import FilterPanel from './components/FilterPanel.jsx'
 import GameBoard from './components/GameBoard.jsx'
 import ScoreBoard from './components/ScoreBoard.jsx'
 import ResultsModal from './components/ResultsModal.jsx'
 import { useGame } from './hooks/useGame.js'
+import { typeColor } from './utils/helpers.js'
 
 export default function App() {
   const game = useGame()
   const [view, setView] = useState('filters') // 'filters' | 'play'
+
+  // Subtly theme the page to the primary type of the current Pokémon.
+  // Stays subtle — most of the page chrome ignores the variable; only
+  // the silhouette card, the silhouette gradient and the page ambient
+  // pick it up (via color-mix at low percentages).
+  const primaryType = game.round?.types?.[0]
+  useEffect(() => {
+    const root = document.documentElement
+    if (primaryType) {
+      root.style.setProperty('--type-color', typeColor(primaryType))
+    } else {
+      root.style.removeProperty('--type-color')
+    }
+  }, [primaryType])
 
   const handleStart = async () => {
     setView('play')

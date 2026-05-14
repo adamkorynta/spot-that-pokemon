@@ -9,6 +9,18 @@
   --poke-bg-2: #ffe680;
   --poke-text: #1d1f24;
   --poke-ink: #222;
+
+  /* Default for --type-color when no round is active. App.jsx overrides
+     this with the primary type color while a round is in play. */
+  --type-color: #3b4cca;
+}
+
+/* Register --type-color so changes interpolate smoothly across rounds
+   instead of snapping (browsers that support @property get the fade). */
+@property --type-color {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #3b4cca;
 }
 
 html, body, #root {
@@ -19,11 +31,19 @@ body {
   margin: 0;
   font-family: 'Trebuchet MS', 'Segoe UI', system-ui, -apple-system, sans-serif;
   color: var(--poke-text);
+  /* Full-page type wash — the whole page reads as the Pokémon's element
+     (warm peach for fire, cool blue for water, lavender for ghost, etc.). */
   background:
-    radial-gradient(circle at 10% 0%, #ffe680 0%, transparent 40%),
-    radial-gradient(circle at 90% 100%, #b8e0ff 0%, transparent 40%),
-    linear-gradient(180deg, #fff7d6 0%, #ffeaa7 100%);
+    /* Soft central highlight to add depth */
+    radial-gradient(ellipse 100% 70% at 50% 25%,
+      color-mix(in srgb, var(--type-color) 30%, #ffffff) 0%,
+      transparent 75%),
+    /* Strong top→bottom wash */
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--type-color) 45%, #fff7d6) 0%,
+      color-mix(in srgb, var(--type-color) 60%, #ffeaa7) 100%);
   background-attachment: fixed;
+  transition: --type-color 0.7s ease;
 }
 
 .app-shell {
@@ -97,24 +117,34 @@ body {
 
 /* ---------- Cards / Panels ---------- */
 .poke-panel {
-  background: #fff;
+  /* Mostly white for max answer-button contrast, but a very light type
+     wash keeps the panel feeling part of the theme. */
+  background: color-mix(in srgb, var(--type-color) 6%, #ffffff);
   border: 4px solid var(--poke-ink);
   border-radius: 18px;
   box-shadow: 0 6px 0 var(--poke-ink);
+  transition: --type-color 0.7s ease;
 }
 
 .poke-panel-yellow {
-  background: linear-gradient(180deg, #fff8c4 0%, #ffe680 100%);
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--type-color) 14%, #fff8c4) 0%,
+    color-mix(in srgb, var(--type-color) 24%, #ffe680) 100%);
   border: 4px solid var(--poke-ink);
   border-radius: 18px;
   box-shadow: 0 6px 0 var(--poke-ink);
+  transition: --type-color 0.7s ease;
 }
 
 .poke-panel-blue {
-  background: linear-gradient(180deg, #e7ecff 0%, #c6d1ff 100%);
+  /* Clearly themed silhouette card — strong wash of the type color. */
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--type-color) 28%, #e7ecff) 0%,
+    color-mix(in srgb, var(--type-color) 45%, #c6d1ff) 100%);
   border: 4px solid var(--poke-ink);
   border-radius: 18px;
   box-shadow: 0 6px 0 var(--poke-ink);
+  transition: --type-color 0.7s ease;
 }
 
 /* ---------- Silhouette / Sprite ---------- */
@@ -122,27 +152,33 @@ body {
   position: relative;
   width: 100%;
   aspect-ratio: 1 / 1;
-  /* Slightly smaller cap so left column fits comfortably alongside the
-     answer grid on desktop without scrolling. */
   max-width: 260px;
   margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: center;
-  /* Dark by default — the whole circle reads as a silhouette before reveal. */
+  /* Dark by default — the silhouette stage stays nearly black so the
+     blurred sprite reads as a clean silhouette against the now type-
+     themed page around it. Only a faint type glow at center. */
   background:
-    radial-gradient(circle at center, #2c2f3d 0%, #1a1d28 70%, #0d1018 100%);
+    radial-gradient(circle at center,
+      color-mix(in srgb, var(--type-color) 14%, #2c2f3d) 0%,
+      color-mix(in srgb, var(--type-color) 4%, #1a1d28) 70%,
+      #0d1018 100%);
   border: 4px solid var(--poke-ink);
   border-radius: 50%;
   overflow: hidden;
   box-shadow: 0 6px 0 var(--poke-ink);
-  transition: background 0.5s ease;
+  transition: --type-color 0.7s ease;
 }
 
-/* Once revealed, swap to a light backdrop so the colored sprite reads well. */
+/* Once revealed, swap to a light backdrop, still gently typed. */
 .silhouette-stage.revealed {
   background:
-    radial-gradient(circle at center, #ffffff 0%, #f1f3f7 60%, #d6daea 100%);
+    radial-gradient(circle at center,
+      #ffffff 0%,
+      color-mix(in srgb, var(--type-color) 14%, #f1f3f7) 60%,
+      color-mix(in srgb, var(--type-color) 26%, #d6daea) 100%);
 }
 
 /* Subtle inner shadow keeps the edges of the circle dark while the centre
@@ -185,6 +221,92 @@ body {
   animation:
     revealPop 0.6s cubic-bezier(0.18, 0.89, 0.32, 1.28),
     pokemonCapture 0.45s ease-in 0.7s forwards;
+}
+
+/* Runaway: brief reveal → wind-up to the left → dash off to the right. */
+.silhouette-sprite.revealed.runaway {
+  animation:
+    revealPop 0.45s cubic-bezier(0.18, 0.89, 0.32, 1.28),
+    pokemonFlee 1.45s cubic-bezier(0.55, 0, 0.75, 0) 0.7s forwards;
+}
+
+@keyframes pokemonFlee {
+  0%   { transform: translateX(0) scale(1) rotate(0deg); opacity: 1; }
+  18%  { transform: translateX(-12px) scale(1.05) rotate(-4deg); opacity: 1; } /* wind-up */
+  35%  { transform: translateX(-6px) scale(1.08) rotate(-2deg); opacity: 1; }
+  100% { transform: translateX(260%) scale(0.7) rotate(8deg); opacity: 0; }
+}
+
+/* The whole stage shakes briefly to sell the escape. */
+.silhouette-stage.runaway {
+  animation: stageShake 0.18s ease-in-out 0.7s 4;
+}
+@keyframes stageShake {
+  0%, 100% { transform: translateX(0); }
+  25%      { transform: translateX(-3px); }
+  75%      { transform: translateX(3px); }
+}
+
+/* ---------- Runaway dust + banner ---------- */
+.runaway-dust {
+  position: absolute;
+  top: 55%;
+  left: 22%;
+  width: 56%;
+  height: 22%;
+  z-index: 10;
+  pointer-events: none;
+}
+.runaway-dust span {
+  position: absolute;
+  width: 18px;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(195, 180, 150, 0.78);
+  box-shadow: 0 0 10px rgba(195, 180, 150, 0.5);
+  opacity: 0;
+  filter: blur(1px);
+  animation: dustZip 0.7s ease-out forwards;
+}
+.runaway-dust span:nth-child(1) { top: 25%;  left: 5%;  animation-delay: 1.0s; }
+.runaway-dust span:nth-child(2) { top: 55%;  left: 0;   animation-delay: 1.15s; height: 6px; }
+.runaway-dust span:nth-child(3) { top: 75%;  left: 12%; animation-delay: 1.3s; }
+.runaway-dust span:nth-child(4) { top: 40%;  left: 18%; animation-delay: 1.45s; height: 4px; }
+
+@keyframes dustZip {
+  0%   { opacity: 0; transform: translateX(0) scaleX(0.4); }
+  25%  { opacity: 0.95; transform: translateX(20%) scaleX(0.9); }
+  100% { opacity: 0; transform: translateX(180%) scaleX(2.2); }
+}
+
+.runaway-banner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: clamp(1.1rem, 4vw, 1.5rem);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #fff;
+  text-shadow:
+     2px  2px 0 var(--poke-red-dark),
+    -2px -2px 0 var(--poke-red-dark),
+     2px -2px 0 var(--poke-red-dark),
+    -2px  2px 0 var(--poke-red-dark),
+     0  4px 8px rgba(0, 0, 0, 0.35);
+  z-index: 12;
+  pointer-events: none;
+  opacity: 0;
+  animation: bannerStamp 1.5s ease-out 1.5s forwards;
+}
+
+@keyframes bannerStamp {
+  0%   { opacity: 0; transform: scale(0.3) rotate(-15deg); }
+  35%  { opacity: 1; transform: scale(1.18) rotate(4deg); }
+  60%  { opacity: 1; transform: scale(1) rotate(0deg); }
+  100% { opacity: 0; transform: scale(1.05) rotate(0deg); }
 }
 
 .silhouette-sprite.flash {

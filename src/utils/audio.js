@@ -82,4 +82,14 @@ export const sfx = {
       { freq: 659, dur: 0.14 },
     ], { volume: 0.18, wave: 'square' })
   },
+  runaway() {
+    // Descending whistle — that classic "uh oh, it got away" vibe.
+    play([
+      { freq: 880, dur: 0.09 },
+      { freq: 740, dur: 0.09 },
+      { freq: 587, dur: 0.10 },
+      { freq: 440, dur: 0.16 },
+      { freq: 294, dur: 0.20 },
+    ], { volume: 0.17, wave: 'triangle' })
+  },
 }

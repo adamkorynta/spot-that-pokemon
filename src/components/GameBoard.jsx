@@ -27,6 +27,7 @@ export default function GameBoard({
   }
 
   const revealed = round.solved || round.gaveUp
+  const inactive = revealed || round.ranAway   // no interaction allowed
   const wrongCount = round.wrongChoices.length
   const totalHints = round.hintPipeline.length
   const pct = Math.min(100, (wrongCount / totalHints) * 100)
@@ -43,6 +44,7 @@ export default function GameBoard({
               blurPx={blurPx}
               revealed={revealed}
               catching={round.catchAnimating}
+              ranAway={round.ranAway}
             />
 
             {revealed && (
@@ -58,7 +60,7 @@ export default function GameBoard({
             </div>
 
             <div className="d-flex flex-wrap gap-2 justify-content-center">
-              {!revealed && (
+              {!inactive && (
                 <button
                   className="btn btn-outline-dark btn-sm"
                   type="button"

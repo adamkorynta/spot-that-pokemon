@@ -1,13 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
 
-export default function PokemonSilhouette({ src, fallbackSrc, blurPx, revealed, catching }) {
+export default function PokemonSilhouette({
+  src, fallbackSrc, blurPx, revealed, catching, ranAway,
+}) {
   const [errored, setErrored] = useState(false)
   const [flash, setFlash] = useState(false)
   const prevSrc = useRef(src)
 
   useEffect(() => {
     if (prevSrc.current !== src) {
-      // New pokémon — play a brief "who's that pokémon" flash.
       setFlash(true)
       const t = setTimeout(() => setFlash(false), 600)
       prevSrc.current = src
@@ -23,16 +24,19 @@ export default function PokemonSilhouette({ src, fallbackSrc, blurPx, revealed, 
     )
   }
 
-  // Dynamic blur. While unrevealed we also scale up slightly so the dark mass
-  // always extends past the circle's edge — no white corners leak through.
-  const dynamicFilter = revealed
+  // During a runaway we treat the Pokémon as "revealed" so the player gets a
+  // brief glimpse of what they missed before it slides off-screen.
+  const showRevealed = revealed || ranAway
+
+  const dynamicFilter = showRevealed
     ? 'none'
     : `brightness(0) saturate(100%) blur(${blurPx}px)`
 
   return (
     <div
-      className={`silhouette-stage ${revealed ? 'revealed' : ''} ${catching ? 'catching' : ''}`}
+      className={`silhouette-stage ${showRevealed ? 'revealed' : ''} ${catching ? 'catching' : ''} ${ranAway ? 'runaway' : ''}`}
       aria-label={
+        ranAway  ? 'The Pokémon ran away!' :
         catching ? 'Catching the Pokémon!' :
         revealed ? 'Pokémon revealed' :
         'Mystery Pokémon silhouette'
@@ -41,12 +45,13 @@ export default function PokemonSilhouette({ src, fallbackSrc, blurPx, revealed, 
       <img
         key={src}
         src={errored ? fallbackSrc : src}
-        alt={revealed ? 'Revealed Pokémon' : 'Blurred Pokémon silhouette'}
-        className={`silhouette-sprite ${revealed ? 'revealed' : ''} ${catching ? 'catching' : ''} ${flash ? 'flash' : ''}`}
-        style={revealed ? { filter: 'none' } : { filter: dynamicFilter }}
+        alt={showRevealed ? 'Revealed Pokémon' : 'Blurred Pokémon silhouette'}
+        className={`silhouette-sprite ${showRevealed ? 'revealed' : ''} ${catching ? 'catching' : ''} ${ranAway ? 'runaway' : ''} ${flash ? 'flash' : ''}`}
+        style={showRevealed ? { filter: 'none' } : { filter: dynamicFilter }}
         onError={() => setErrored(true)}
         draggable={false}
       />
+
       {catching && (
         <>
           <div className="catch-pokeball" aria-hidden="true">
@@ -75,6 +80,15 @@ export default function PokemonSilhouette({ src, fallbackSrc, blurPx, revealed, 
               </div>
             ))}
           </div>
+        </>
+      )}
+
+      {ranAway && (
+        <>
+          <div className="runaway-dust" aria-hidden="true">
+            <span /><span /><span /><span />
+          </div>
+          <div className="runaway-banner" aria-hidden="true">It got away!</div>
         </>
       )}
     </div>

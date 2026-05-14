@@ -7,7 +7,7 @@ function spriteForId(id) {
 
 export default function AnswerGrid({ round, onGuess }) {
   if (!round) return null
-  const disabled = round.solved || round.gaveUp
+  const disabled = round.solved || round.gaveUp || round.ranAway
 
   return (
     <div className="poke-panel p-3">

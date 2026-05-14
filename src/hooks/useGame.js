@@ -10,16 +10,19 @@ import { sfx } from '../utils/audio.js'
 
 const TOTAL_HINTS_EASY = 6
 const TOTAL_HINTS_HARD = 4
-const MAX_BLUR_PX = 32
-const MIN_BLUR_PX = 6
+const MAX_BLUR_PX = 20
+const MIN_BLUR_PX = 0
 const POINTS_START = 200
 const POINTS_PER_WRONG = 12
 const POINTS_PER_HINT = 8
 
-// Map a "guesses used" count to a CSS blur. The more guesses, the clearer.
+// Map a "guesses used" count to a CSS blur. Starts at MAX (0 wrong guesses)
+// and hits 0 on the LAST allowed guess — i.e. wrong-count = totalHints - 1.
+// The next wrong guess triggers runaway, so the player effectively sees the
+// silhouette completely sharp on their final attempt.
 function blurFor(guessesUsed, totalHints) {
-  // We want blur to interpolate from MAX_BLUR_PX → MIN_BLUR_PX over totalHints + 1.
-  const t = Math.min(1, guessesUsed / (totalHints))
+  const denom = Math.max(1, totalHints - 1)
+  const t = Math.min(1, guessesUsed / denom)
   return Math.round(MAX_BLUR_PX - (MAX_BLUR_PX - MIN_BLUR_PX) * t)
 }
 
@@ -217,7 +220,7 @@ export function useGame() {
   }, [pool, seenIds, difficulty, buildChoices])
 
   const guess = useCallback((choice) => {
-    if (!round || round.solved || round.gaveUp) return
+    if (!round || round.solved || round.gaveUp || round.ranAway) return
     if (round.wrongChoices.includes(choice)) return
     if (choice === round.prettyName) {
       // Correct! The first hint is free — only count hints beyond it.
@@ -262,23 +265,36 @@ export function useGame() {
       }, 3700)
     } else {
       // Wrong.
+      const nextWrongCount = round.wrongChoices.length + 1
+      // The wrong-guesses bar fills at hintPipeline.length wrongs — that's
+      // when the Pokémon runs away.
+      const willRunAway = nextWrongCount >= round.hintPipeline.length
+
       setRound(r => {
         const nextWrong = [...r.wrongChoices, choice]
-        // First hint is free; each wrong guess unlocks one more.
         const revealedHints = Math.min(1 + nextWrong.length, r.hintPipeline.length)
-        // We don't auto-end when hints are exhausted; the player can keep
-        // guessing until they get it right or click "Give up".
         return {
           ...r,
           wrongChoices: nextWrong,
           guesses: [...r.guesses, choice],
           revealedHints,
+          ranAway: willRunAway,
         }
       })
-      sfx.wrong()
-      setTimeout(() => sfx.hint(), 200)
+
+      if (willRunAway) {
+        setStreak(0)
+        setRoundsPlayed(n => n + 1)
+        sfx.wrong()
+        setTimeout(() => sfx.runaway(), 300)
+        // Auto-advance to next Pokémon once the flee animation finishes.
+        setTimeout(() => { startRound() }, 2800)
+      } else {
+        sfx.wrong()
+        setTimeout(() => sfx.hint(), 200)
+      }
     }
-  }, [round])
+  }, [round, startRound])
 
   const giveUp = useCallback(() => {
     if (!round || round.solved) return
