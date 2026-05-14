@@ -27,7 +27,7 @@ export default function App() {
       <header className="app-header py-3 mb-3">
         <div className="container d-flex flex-wrap align-items-center justify-content-between gap-3">
           <div className="d-flex align-items-center gap-3">
-            <img src="/pokeball.svg" width="44" height="44" alt="" aria-hidden="true" />
+            <img src="./pokeball.svg" width="44" height="44" alt="" aria-hidden="true" />
             <h1 className="app-title m-0">Spot That <span className="accent">Pokémon!</span></h1>
           </div>
           <ScoreBoard
