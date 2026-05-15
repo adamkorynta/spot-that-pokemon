@@ -34,6 +34,9 @@ export default function App() {
   }
 
   const handleBackToFilters = () => {
+    // Clear the current round so any open results modal closes and the
+    // sticky silhouette doesn't linger when we navigate back.
+    game.dismissRound()
     setView('filters')
   }
 

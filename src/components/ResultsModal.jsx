@@ -1,4 +1,5 @@
 import { capitalize } from '../utils/helpers.js'
+import Pokeball, { ballName } from './Pokeball.jsx'
 
 export default function ResultsModal({ round, onNext, onChangeFilters }) {
   if (!round) return null
@@ -50,9 +51,19 @@ export default function ResultsModal({ round, onNext, onChangeFilters }) {
         </div>
 
         {round.solved ? (
-          <div className="alert alert-success py-2 mb-3">
-            <strong>+{round.roundScore} pts</strong> · {round.wrongChoices.length} wrong guess{round.wrongChoices.length === 1 ? '' : 'es'}
-          </div>
+          <>
+            <div className="caught-with-ball mb-3" aria-label={`Caught with a ${ballName(round.ballType)}`}>
+              <div className="caught-with-ball-icon">
+                <Pokeball type={round.ballType} />
+              </div>
+              <div className="caught-with-ball-label">
+                Caught with a <strong>{ballName(round.ballType)}</strong>
+              </div>
+            </div>
+            <div className="alert alert-success py-2 mb-3">
+              <strong>+{round.roundScore} pts</strong> · {round.wrongChoices.length} wrong guess{round.wrongChoices.length === 1 ? '' : 'es'}
+            </div>
+          </>
         ) : (
           <div className="alert alert-secondary py-2 mb-3">
             No points this round — better luck on the next one!

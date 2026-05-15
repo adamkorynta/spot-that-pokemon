@@ -4,9 +4,10 @@ import {
   pickFlavorText, deriveEvolutionStage, formatHeight, formatWeight,
 } from '../services/pokeapi.js'
 import { buildCandidatePool } from '../services/pool.js'
-import { getGenerationForId } from '../data/pokedexIndex.js'
+import { getGenerationForId, isLegendary, isMythical } from '../data/pokedexIndex.js'
 import { randomFrom, shuffle, prettyName } from '../utils/helpers.js'
 import { sfx } from '../utils/audio.js'
+import { pickBallType } from '../components/Pokeball.jsx'
 
 const TOTAL_HINTS_EASY = 6
 const TOTAL_HINTS_HARD = 4
@@ -179,6 +180,9 @@ export function useGame() {
       if (!abilities.length && pokemon.abilities?.length) abilities.push(pokemon.abilities[0].ability.name)
       const flavor = pickFlavorText(species)
 
+      const legendaryFlag = isLegendary(id)
+      const mythicalFlag  = isMythical(id)
+
       const data = {
         id,
         name: pokemon.name,
@@ -193,6 +197,15 @@ export function useGame() {
         generation,
         region: generation.region,
         flavor,
+        isLegendary: legendaryFlag,
+        isMythical:  mythicalFlag,
+        // Pre-compute the ball this Pokémon "wants" to be caught in.
+        ballType: pickBallType({
+          types,
+          evolutionStage,
+          isLegendary: legendaryFlag,
+          isMythical:  mythicalFlag,
+        }),
       }
 
       const hintPipeline = buildHintPipeline(data)
@@ -253,6 +266,7 @@ export function useGame() {
           spriteFallback: round.spriteFallback,
           types: round.types,
           roundScore,
+          ballType: round.ballType,
         },
       ])
       sfx.correct()
@@ -309,6 +323,13 @@ export function useGame() {
     setRound(null); setSeenIds(new Set()); setCaught([])
   }, [])
 
+  // Drops the current round without touching score/streak/caught. Used when
+  // the player jumps back to the filter panel mid-round (or from the results
+  // modal) — also ensures the modal closes.
+  const dismissRound = useCallback(() => {
+    setRound(null)
+  }, [])
+
   const blurPx = useMemo(() => {
     if (!round) return MAX_BLUR_PX
     if (round.solved || round.gaveUp) return 0
@@ -325,6 +346,6 @@ export function useGame() {
     setFilters, setDifficulty,
     setMuted: setMutedState,
     // actions
-    startRound, guess, giveUp, resetGame,
+    startRound, guess, giveUp, resetGame, dismissRound,
   }
 }

@@ -462,35 +462,35 @@ body {
 /* ---------- Answer grid ---------- */
 .answer-grid {
   display: grid;
-  /* Smaller min so the grid can pack 4–6 columns into the right pane on
-     desktop. Mobile breakpoint forces 2 columns for big tap targets. */
-  grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
-  gap: 8px;
+  /* Wider min so each button has room for a larger sprite + readable text.
+     With col-md-8 on desktop this packs 5 buttons per row × 5 rows. */
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
 }
 
 .answer-btn {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.55rem;
   background: #fff;
   border: 3px solid var(--poke-ink);
-  border-radius: 12px;
+  border-radius: 14px;
   color: var(--poke-ink);
-  font-weight: 700;
-  padding: 0.3rem 0.5rem;
-  font-size: 0.85rem;
-  min-height: 54px;
+  font-weight: 800;
+  padding: 0.5rem 0.7rem;
+  font-size: 1rem;
+  min-height: 84px;
   text-transform: capitalize;
-  box-shadow: 0 3px 0 var(--poke-ink);
+  box-shadow: 0 4px 0 var(--poke-ink);
   transition: transform 0.05s ease, box-shadow 0.05s ease, background 0.2s ease;
   text-align: left;
   cursor: pointer;
-  line-height: 1.05;
+  line-height: 1.1;
 }
 .answer-sprite {
   flex: 0 0 auto;
-  width: 38px;
-  height: 38px;
+  width: 56px;
+  height: 56px;
   object-fit: contain;
   image-rendering: pixelated;
   background: radial-gradient(circle at center, #f4f6fb 0%, #e1e6f1 100%);
@@ -540,16 +540,27 @@ body {
 .hint-chip {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.35rem;
   background: #fff;
-  border: 3px solid var(--poke-ink);
+  border: 2px solid var(--poke-ink);
   border-radius: 999px;
-  padding: 0.4rem 0.9rem;
+  padding: 0.2rem 0.55rem;
   font-weight: 700;
-  font-size: 0.95rem;
-  margin: 0.25rem;
-  box-shadow: 0 3px 0 var(--poke-ink);
+  font-size: 0.8rem;
+  margin: 0.15rem;
+  box-shadow: 0 2px 0 var(--poke-ink);
   animation: chipIn 0.35s ease;
+  line-height: 1.2;
+}
+.hint-chip .text-muted {
+  font-size: 0.62rem !important;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  font-weight: 800;
+}
+.hint-chip .type-badge {
+  font-size: 0.65rem;
+  padding: 0.1rem 0.5rem;
 }
 @keyframes chipIn {
   from { transform: translateY(8px); opacity: 0; }
@@ -558,12 +569,44 @@ body {
 
 .hint-flavor {
   background: #fff;
-  border: 3px dashed var(--poke-ink);
+  border: 2.5px dashed var(--poke-ink);
   border-radius: 12px;
-  padding: 0.9rem 1rem;
+  padding: 0.6rem 0.85rem;
   font-style: italic;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
+  line-height: 1.4;
   animation: chipIn 0.35s ease;
+}
+
+/* Locked hint chip — same size as a revealed one (so layout doesn't shift
+   when it gets replaced), but greyed out with a lock icon. */
+.hint-chip-locked {
+  background: rgba(255, 255, 255, 0.55);
+  border-color: rgba(0, 0, 0, 0.35);
+  color: rgba(0, 0, 0, 0.45);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.25);
+  animation: none;
+}
+.hint-chip-locked .text-muted {
+  color: rgba(0, 0, 0, 0.45) !important;
+}
+.hint-chip-locked .bi-lock-fill {
+  font-size: 0.7rem;
+  opacity: 0.6;
+}
+
+/* Locked Pokédex placeholder — same shape as the real entry, but the
+   text is a redacted murmur of "?????" so it visually claims the space. */
+.hint-flavor-locked {
+  background: rgba(255, 255, 255, 0.55);
+  border-color: rgba(0, 0, 0, 0.35);
+  color: rgba(0, 0, 0, 0.45);
+  animation: none;
+}
+.hint-flavor-redacted {
+  letter-spacing: 1px;
+  word-spacing: 2px;
+  user-select: none;
 }
 
 /* ---------- Type badges ---------- */
@@ -656,6 +699,25 @@ body {
   border-radius: 50%;
 }
 
+/* Ball-type badge on the caught-gallery tile — tiny indicator showing the
+   ball that caught this Pokémon, tucked into the lower-right of the frame. */
+.caught-ball-badge {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid var(--poke-ink);
+  box-shadow: 0 1px 0 var(--poke-ink);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.caught-frame { position: relative; }
+
 .caught-name {
   font-size: 0.72rem;
   font-weight: 800;
@@ -711,6 +773,27 @@ body {
   padding: 1.5rem;
   text-align: center;
   animation: pop 0.4s ease;
+}
+
+/* "Caught with a Master Ball" — small icon + label row in the modal. */
+.caught-with-ball {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.4rem 0.85rem;
+  border: 2.5px solid var(--poke-ink);
+  border-radius: 999px;
+  background: linear-gradient(180deg, #fff 0%, #f4f6fb 100%);
+  box-shadow: 0 2px 0 var(--poke-ink);
+}
+.caught-with-ball-icon {
+  width: 32px;
+  height: 32px;
+  flex: 0 0 auto;
+}
+.caught-with-ball-label {
+  font-size: 0.95rem;
+  font-weight: 700;
 }
 @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
 
@@ -770,9 +853,207 @@ body {
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ---------- Mobile tweaks ---------- */
-@media (max-width: 576px) {
-  .answer-grid { grid-template-columns: repeat(2, 1fr); }
-  .answer-btn { font-size: 0.8rem; min-height: 54px; padding: 0.3rem 0.45rem; }
-  .answer-sprite { width: 36px; height: 36px; }
+/* ---------- Game board grid layout ---------- */
+.game-grid {
+  display: grid;
+  gap: 0.85rem;
+  align-items: start;
+  /* Desktop (lg+): 2-column with silhouette + hints on left, answers on right */
+  grid-template-columns: minmax(280px, 360px) 1fr;
+  grid-template-areas:
+    "silhouette answers"
+    "hints      answers";
+}
+
+.game-area-silhouette {
+  grid-area: silhouette;
+  padding: 1rem;
+}
+.game-area-hints   { grid-area: hints; }
+.game-area-answers { grid-area: answers; }
+
+/* Desktop (>= 992px): the answer column spans both grid rows and should
+   visually fill that full height to match silhouette + hints stack height.
+   The inner panel becomes a flex column, the answer grid grows to fill the
+   remaining space, and rows distribute evenly (grid-auto-rows: 1fr) so each
+   button stretches to a comfortable size. */
+@media (min-width: 992px) {
+  .game-area-answers {
+    align-self: stretch;
+  }
+  .game-area-answers > .poke-panel {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  .game-area-answers .answer-grid {
+    flex: 1 1 auto;
+    grid-auto-rows: 1fr;
+  }
+  /* Bigger sprites now that there's more headroom in each row. */
+  .game-area-answers .answer-sprite {
+    width: 60px;
+    height: 60px;
+  }
+
+  /* Stabilize the hints panel height so the answer column doesn't lurch
+     when a new hint reveals. Reserve enough room for the typical case
+     (5 compact chips + a 3-line Pokédex entry) at minimum, and cap the
+     maximum so a long flavor entry scrolls internally rather than pushing
+     the whole layout taller. */
+  .game-area-hints > .poke-panel-yellow {
+    min-height: 340px;
+    max-height: 460px;
+    overflow-y: auto;
+    /* Subtle scrollbar so it doesn't fight the cartoony aesthetic. */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.25) transparent;
+  }
+  .game-area-hints > .poke-panel-yellow::-webkit-scrollbar {
+    width: 8px;
+  }
+  .game-area-hints > .poke-panel-yellow::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.22);
+    border-radius: 4px;
+  }
+  .game-area-hints > .poke-panel-yellow::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
+/* Silhouette card internal layout (desktop default: vertical) */
+.silhouette-card-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  align-items: stretch;
+}
+.silhouette-stage-wrap {
+  display: flex;
+  justify-content: center;
+}
+.silhouette-card-info {
+  width: 100%;
+  text-align: center;
+}
+.silhouette-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  justify-content: center;
+}
+.pokemon-name-card {
+  font-size: clamp(1.1rem, 3vw, 1.4rem);
+  margin-bottom: 0.4rem;
+}
+
+/* ---------- Tablet & mobile (< 992 px): single-column, sticky silhouette ---------- */
+@media (max-width: 991.98px) {
+  .game-grid {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "silhouette"
+      "hints"
+      "answers";
+    gap: 0.6rem;
+  }
+
+  /* Sticky-pin the silhouette card to the top of the viewport so the player
+     always sees the catch / runaway / reveal animations while scrolling
+     down through hints and answer choices. */
+  .game-area-silhouette {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    padding: 0.65rem 0.85rem;
+    /* Slightly stronger drop shadow under the card so it reads as floating
+       above scrolling content. */
+    box-shadow: 0 6px 0 var(--poke-ink), 0 10px 18px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Switch internal layout to horizontal: small circle on the left, status
+     bar + buttons on the right. */
+  .silhouette-card-inner {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.85rem;
+  }
+  .silhouette-stage-wrap {
+    flex: 0 0 auto;
+  }
+  .silhouette-stage-wrap .silhouette-stage {
+    max-width: 140px;
+  }
+  .silhouette-card-info {
+    flex: 1 1 auto;
+    min-width: 0;
+    text-align: left;
+  }
+  .silhouette-actions {
+    justify-content: flex-start;
+  }
+  .pokemon-name-card {
+    font-size: clamp(1rem, 4vw, 1.25rem);
+    text-align: left;
+    margin-bottom: 0.25rem;
+  }
+
+  /* Tablet answer grid — generous tap targets, fits 3–5 columns. */
+  .answer-grid {
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 9px;
+  }
+  .answer-btn {
+    min-height: 76px;
+    font-size: 0.95rem;
+    padding: 0.45rem 0.6rem;
+    gap: 0.5rem;
+  }
+  .answer-sprite { width: 50px; height: 50px; }
+}
+
+/* ---------- Phones (< 576 px): tighter still ---------- */
+@media (max-width: 575.98px) {
+  .game-area-silhouette {
+    padding: 0.5rem 0.6rem;
+  }
+  .silhouette-stage-wrap .silhouette-stage {
+    max-width: 112px;
+  }
+  .silhouette-card-inner {
+    gap: 0.55rem;
+  }
+  .silhouette-actions .btn {
+    padding: 0.2rem 0.45rem;
+    font-size: 0.78rem;
+  }
+  /* Hide button text on very narrow screens — icons stay. Saves precious row width. */
+  .silhouette-btn-label {
+    display: none;
+  }
+  .silhouette-actions .btn i {
+    margin-right: 0 !important;
+  }
+
+  /* Two-column answer grid on phones */
+  .answer-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+  .answer-btn {
+    min-height: 60px;
+    font-size: 0.85rem;
+    padding: 0.35rem 0.5rem;
+    gap: 0.4rem;
+  }
+  .answer-sprite { width: 40px; height: 40px; }
+
+  /* Tighter caught gallery on phones */
+  .caught-grid {
+    grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+    gap: 0.45rem;
+  }
+  .caught-frame { width: 52px; height: 52px; }
+  .caught-frame img { width: 48px; height: 48px; }
+  .caught-name { font-size: 0.66rem; }
 }

@@ -34,60 +34,69 @@ export default function GameBoard({
 
   return (
     <>
-      <div className="row g-3 align-items-start">
-        {/* Left column — silhouette + hints (side-by-side with answers on md+) */}
-        <div className="col-12 col-md-5 d-flex flex-column gap-3">
-          <div className="poke-panel-blue p-3 text-center">
-            <PokemonSilhouette
-              src={round.sprite}
-              fallbackSrc={round.spriteFallback}
-              blurPx={blurPx}
-              revealed={revealed}
-              catching={round.catchAnimating}
-              ranAway={round.ranAway}
-            />
-
-            {revealed && (
-              <div className="pokemon-name mt-3">{round.prettyName}</div>
-            )}
-
-            <div className="d-flex justify-content-between align-items-center mt-3 mb-1">
-              <span className="muted-label">Wrong guesses</span>
-              <span className="muted-label">{wrongCount}</span>
-            </div>
-            <div className="attempts-bar mb-3" aria-hidden="true">
-              <div style={{ width: `${pct}%` }} />
+      <div className="game-grid">
+        {/* Silhouette card — desktop: vertical card on left; mobile/tablet:
+            compact horizontal card sticky-pinned to viewport top. */}
+        <div className="game-area-silhouette poke-panel-blue">
+          <div className="silhouette-card-inner">
+            <div className="silhouette-stage-wrap">
+              <PokemonSilhouette
+                src={round.sprite}
+                fallbackSrc={round.spriteFallback}
+                blurPx={blurPx}
+                revealed={revealed}
+                catching={round.catchAnimating}
+                ranAway={round.ranAway}
+                ballType={round.ballType}
+              />
             </div>
 
-            <div className="d-flex flex-wrap gap-2 justify-content-center">
-              {!inactive && (
+            <div className="silhouette-card-info">
+              {revealed && (
+                <div className="pokemon-name pokemon-name-card">{round.prettyName}</div>
+              )}
+
+              <div className="d-flex justify-content-between align-items-center mb-1">
+                <span className="muted-label">Wrong guesses</span>
+                <span className="muted-label">{wrongCount}</span>
+              </div>
+              <div className="attempts-bar mb-2" aria-hidden="true">
+                <div style={{ width: `${pct}%` }} />
+              </div>
+
+              <div className="silhouette-actions">
+                {!inactive && (
+                  <button
+                    className="btn btn-outline-dark btn-sm"
+                    type="button"
+                    onClick={onGiveUp}
+                    title="Reveal the answer (no points)"
+                  >
+                    <i className="bi bi-flag-fill me-1" />
+                    <span className="silhouette-btn-label">I give up</span>
+                  </button>
+                )}
                 <button
                   className="btn btn-outline-dark btn-sm"
                   type="button"
-                  onClick={onGiveUp}
-                  title="Reveal the answer (no points)"
+                  onClick={onBackToFilters}
+                  title="Go back to filters"
                 >
-                  <i className="bi bi-flag-fill me-1" />
-                  I give up
+                  <i className="bi bi-sliders me-1" />
+                  <span className="silhouette-btn-label">Filters</span>
                 </button>
-              )}
-              <button
-                className="btn btn-outline-dark btn-sm"
-                type="button"
-                onClick={onBackToFilters}
-                title="Go back to filters"
-              >
-                <i className="bi bi-sliders me-1" />
-                Change filters
-              </button>
+              </div>
             </div>
           </div>
+        </div>
 
+        {/* Hints — desktop: under silhouette in left col; mobile: under sticky silhouette */}
+        <div className="game-area-hints">
           <HintPanel round={round} />
         </div>
 
-        {/* Right column — the 24 answer choices */}
-        <div className="col-12 col-md-7">
+        {/* 25 answer choices — desktop: right column; mobile: below hints */}
+        <div className="game-area-answers">
           <AnswerGrid round={round} onGuess={onGuess} />
         </div>
       </div>

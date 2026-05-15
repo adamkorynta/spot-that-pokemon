@@ -3,6 +3,7 @@
 // the name and points earned in that round.
 
 import { capitalize } from '../utils/helpers.js'
+import Pokeball, { ballName } from './Pokeball.jsx'
 
 export default function CaughtGallery({ caught }) {
   if (!caught || !caught.length) return null
@@ -24,7 +25,7 @@ export default function CaughtGallery({ caught }) {
           <div
             key={`${p.id}-${i}`}
             className="caught-tile"
-            title={`${p.prettyName} • +${p.roundScore} pts`}
+            title={`${p.prettyName} • Caught with a ${ballName(p.ballType)} • +${p.roundScore} pts`}
             tabIndex={0}
           >
             <div className="caught-frame">
@@ -41,6 +42,11 @@ export default function CaughtGallery({ caught }) {
                   }
                 }}
               />
+              {p.ballType && (
+                <span className="caught-ball-badge" aria-hidden="true">
+                  <Pokeball type={p.ballType} />
+                </span>
+              )}
             </div>
             <span className="caught-name">{p.prettyName}</span>
             {p.types?.length > 0 && (

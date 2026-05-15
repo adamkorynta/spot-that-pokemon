@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
+import Pokeball from './Pokeball.jsx'
 
 export default function PokemonSilhouette({
-  src, fallbackSrc, blurPx, revealed, catching, ranAway,
+  src, fallbackSrc, blurPx, revealed, catching, ranAway, ballType = 'poke',
 }) {
   const [errored, setErrored] = useState(false)
   const [flash, setFlash] = useState(false)
@@ -55,16 +56,7 @@ export default function PokemonSilhouette({
       {catching && (
         <>
           <div className="catch-pokeball" aria-hidden="true">
-            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-              <defs>
-                <clipPath id="pbclip"><circle cx="50" cy="50" r="46"/></clipPath>
-              </defs>
-              <circle cx="50" cy="50" r="46" fill="#fff" stroke="#222" strokeWidth="5"/>
-              <rect x="0" y="0" width="100" height="50" fill="#ee1515" clipPath="url(#pbclip)"/>
-              <rect x="0" y="45" width="100" height="10" fill="#222"/>
-              <circle cx="50" cy="50" r="14" fill="#fff" stroke="#222" strokeWidth="5"/>
-              <circle cx="50" cy="50" r="6" fill="#fff" stroke="#222" strokeWidth="3"/>
-            </svg>
+            <Pokeball type={ballType} />
           </div>
           <div className="catch-stars" aria-hidden="true">
             {[...Array(8)].map((_, i) => (
